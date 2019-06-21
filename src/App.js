@@ -1,22 +1,36 @@
 import React from 'react';
-import logo from './logo.svg';
+import { Route, Link } from 'react-router-dom';
+import { ChatClient } from './Chat';
 import './App.css';
+
+const Index = () => <h2>Index page</h2>;
+const About = () => <h2>About page</h2>;
+const Page = () => <h2>Page page</h2>;
 
 function App() {
     return (
         <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                    Edit <code>src/App.js</code> and save to reload.
-                </p>
-                <a className="App-link"
-                   href="https://reactjs.org"
-                   target="_blank"
-                   rel="noopener noreferrer">
-                    Learn React?
-                </a>
-            </header>
+            <nav>
+                <ul>
+                    <li>
+                        <Link to="/">Home</Link>
+                    </li>
+                    <li>
+                        <Link to="/about">About</Link>
+                    </li>
+                    <li>
+                        <Link to="/chat">Chat</Link>
+                    </li>
+                    <li>
+                        <Link to="/page">Page</Link>
+                    </li>
+                </ul>
+            </nav>
+
+            <Route path="/" exact component={Index} />
+            <Route path="/about/" component={About} />
+            <Route path="/chat/" component={ChatClient} />
+            <Route path="/page/" component={Page} />
         </div>
     );
 }
