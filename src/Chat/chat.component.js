@@ -1,6 +1,5 @@
 import React from 'react';
-
-const Message = (props) => <div className={'message ' + props.messageClassName}>{props.message}</div>;
+import { Message } from './message.component';
 
 export class ChatClient extends React.Component {
     constructor(props) {
