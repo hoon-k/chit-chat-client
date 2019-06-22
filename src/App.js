@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Link } from 'react-router-dom';
-import { ChatClient } from './Chat';
+import { ChatClientView } from './Chat/chat.component.view';
 import './App.css';
 
 const Index = () => <h2>Index page</h2>;
@@ -29,7 +29,7 @@ function App() {
 
             <Route path="/" exact component={Index} />
             <Route path="/about/" component={About} />
-            <Route path="/chat/" component={ChatClient} />
+            <Route path="/chat/" component={ChatClientView} />
             <Route path="/page/" component={Page} />
         </div>
     );
