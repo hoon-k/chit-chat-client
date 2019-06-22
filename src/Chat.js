@@ -11,7 +11,18 @@ export class ChatClient extends React.Component {
     }
 
     sendChat() {
+        const msg = {
+            sentTime: Date.UTC(),
+            message: 'Hello!'
+        };
 
+        fetch("http://localhost:8085/live-chat/push", {
+            method: 'POST',
+            body: msg,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
     }
 
     receiveChat() {
