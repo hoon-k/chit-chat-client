@@ -3,6 +3,8 @@ import React from 'react';
 const Message = (props) => <div>{props.message}</div>
 
 export class ChatClient extends React.Component {
+    channelID = '';
+
     constructor(props) {
         super(props);
         this.state = {
@@ -12,15 +14,18 @@ export class ChatClient extends React.Component {
 
     sendChat() {
         const msg = {
+            channelID: this.channelID,
             sentTime: Date.UTC(),
             message: 'Hello!'
         };
 
         fetch("http://localhost:8085/live-chat/push", {
             method: 'POST',
+            mode: 'no-cors',
             body: msg,
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Channel-ID': this.channelID,
             }
         });
     }
@@ -28,13 +33,21 @@ export class ChatClient extends React.Component {
     receiveChat() {
         fetch("http://localhost:8085/live-chat/poll", {
             method: 'GET',
+            mode: 'no-cors',
+            headers: {
+                'X-Channel-ID': this.channelID
+            }
         })
             .then(res => res.json())
             .then(
                 (result) => {
-                    this.setState({
-                        messages: this.state.messages.concat(this.getMessage(result.Message))
-                    });
+                    if (result.message) {
+                        this.setState({
+                            messages: this.state.messages.concat(this.getMessage(result.message))
+                        });
+                    } else {
+                        this.channelID = result.channelID;
+                    }
                     this.receiveChat();
                 },
                 // Note: it's important to handle errors here
