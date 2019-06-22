@@ -1,9 +1,7 @@
 import React from 'react';
 import './chat.css';
 
-import { ChatClient } from './chat.component';
-
-// const Message = (props) => <div>{props.message}</div>
+import { ChatClient } from './chat-client.component';
 
 export class ChatClientView extends ChatClient {
     render() {

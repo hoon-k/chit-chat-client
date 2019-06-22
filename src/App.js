@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Link } from 'react-router-dom';
-import { ChatClientView } from './Chat/chat.component.view';
+import { ChatClientView } from './Chat/chat-client.component.view';
 import './App.css';
 
 const Index = () => <h2>Index page</h2>;
