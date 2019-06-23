@@ -1,5 +1,4 @@
 import React from 'react';
-import { Message } from './message.component';
 
 export class ChatClient extends React.Component {
     constructor(props) {
@@ -12,7 +11,7 @@ export class ChatClient extends React.Component {
         this.userId = (new Date()).getTime();
     }
 
-    sendChat = () => {
+    sendChat() {
         if (this.state.messageToSent.trim() === '') {
             return;
         }
@@ -33,12 +32,12 @@ export class ChatClient extends React.Component {
             }
         }).then(() => {
             this.setState({
-                messages: this.state.messages.concat(this.getMessage(msg.message, 'sent'))
+                messages: this.state.messages.concat({ message: msg.message, type: 'sent'})
             });
         });
     }
 
-    createChat = () => {
+    createChat() {
         fetch('http://localhost:8085/live-chat/create', {
             method: 'GET',
         })
@@ -54,7 +53,7 @@ export class ChatClient extends React.Component {
         );
     }
 
-    receiveChat = () => {
+    receiveChat() {
         fetch('http://localhost:8085/live-chat/poll', {
             method: 'GET',
             headers: {
@@ -66,7 +65,7 @@ export class ChatClient extends React.Component {
             (result) => {
                 if (result.userID !== this.userId) {
                     this.setState({
-                        messages: this.state.messages.concat(this.getMessage(result.message, 'recevied'))
+                        messages: this.state.messages.concat({ message: result.message, type: 'received'})
                     });
                 }
 
@@ -78,21 +77,17 @@ export class ChatClient extends React.Component {
             (error) => {
                 console.log(error);
                 this.setState({
-                    messages: this.state.messages.concat(this.getMessage('Problem!!', 'error'))
+                    messages: this.state.messages.concat({ message: 'Problems!', type: 'received'})
                 });
             }
         );
-}
+    }
 
-    componentDidMount = () => {
+    componentDidMount() {
         this.createChat();
     }
 
-    getMessage = (msg, className) => {
-        return <Message message={msg} messageClassName={className} />
-    }
-
-    updateMessageToSend = (evt) => {
+    updateMessageToSend(evt) {
         this.setState({
             messageToSent: evt.target.value
         });
