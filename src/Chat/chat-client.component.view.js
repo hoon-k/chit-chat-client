@@ -2,7 +2,6 @@ import React from 'react';
 import './chat-client.css';
 
 import { ChatClient } from './chat-client.component';
-import { Message } from './message.component';
 import { ChatBox } from './chat-box.component';
 
 export class ChatClientView extends ChatClient {
@@ -11,16 +10,10 @@ export class ChatClientView extends ChatClient {
             <ChatBox
                 messages={messages}
                 messageToSend={this.state.messageToSend}
-                sendChatHandler={(channelID) => this.sendChat(channelID)}
-                chatMessageChangeHandler={(evt) => this.updateMessageToSend(evt)}
+                sendChatHandler={() => this.sendChat(channelID)}
+                chatMessageChangeHandler={(evt) => this.updateMessageToSend(evt, channelID)}
                 key={channelID}></ChatBox>
         );
-    }
-
-    getMessages() {
-        return this.state.messages.map((msg, index) => {
-            return (<Message messageClassName={msg.type} message={msg.message} key={index.toString()}></Message>)
-        })
     }
 
     createChatBoxes() {
@@ -31,20 +24,25 @@ export class ChatClientView extends ChatClient {
         });
     }
 
+    createChannelButtons() {
+        return this.state.channels.map((channel) => {
+            return (
+                <li key={channel}><button>{channel}</button></li>
+            );
+        });
+    }
+
     render() {
-        // const messages = this.getMessages();
         const chatBoxes = this.createChatBoxes();
+        const channelButtons = this.createChannelButtons();
         return (
             <div>
-                {chatBoxes}
-                {/* <ChatBox
-                    messages={messages}
-                    messageToSend={this.state.messageToSent}
-                    sendChatHandler={() => this.sendChat()}
-                    chatMessageChangeHandler={(evt) => this.updateMessageToSend(evt)}></ChatBox>
-                <div>
-
-                </div> */}
+                <div className="chat-area">
+                    {chatBoxes}
+                </div>
+                <ul className="channels">
+                    {channelButtons}
+                </ul>
             </div>
         );
     }

@@ -6,21 +6,23 @@ export class ChatClient extends React.Component {
         this.state = {
             messageToSend: '',
             messages: [],
-            chatOnChannel: {}
+            chatOnChannel: {},
+            channels: []
         };
         this.channelId = '';
         this.userId = (new Date()).getTime();
     }
 
     sendChat(channelID) {
-        if (this.state.messageToSend.trim() === '') {
+        const channel = this.state.chatOnChannel[channelID];
+        if (!channel || this.state.messageToSend.trim() === '') {
             return;
         }
 
         const msg = {
             userID: this.userId,
             channelID: channelID,
-            sentTime: Date.UTC(),
+            sentTime: new Date().toISOString(),
             message: this.state.messageToSend
         };
 
@@ -29,11 +31,14 @@ export class ChatClient extends React.Component {
             body: JSON.stringify(msg),
             headers: {
                 'Content-Type': 'application/json',
-                'X-Channel-ID': this.channelId
+                'X-Channel-ID': channelID
             }
         }).then(() => {
+            const chatOnChannel = JSON.parse(JSON.stringify(this.state.chatOnChannel));
+            chatOnChannel[channelID].messages = chatOnChannel[channelID].messages.concat([{ message: msg.message, type: 'sent'}]);
+
             this.setState({
-                messages: this.state.messages.concat({ message: msg.message, type: 'sent'})
+                chatOnChannel: chatOnChannel
             });
         });
     }
@@ -45,17 +50,18 @@ export class ChatClient extends React.Component {
         .then(res => res.json())
         .then(
             (result) => {
-                // this.channelId = result.channelID;
-                const channelID = result.channelID;
                 let chatOnChannel = JSON.parse(JSON.stringify(this.state.chatOnChannel));
-                chatOnChannel[channelID] = {};
-                chatOnChannel[channelID].messages = [];
+                result.otherChannelIDs.forEach((channelID) => {
+                    chatOnChannel[channelID] = {};
+                    chatOnChannel[channelID].messages = [];
+
+                    this.receiveChat(channelID);
+                });
                    
                 this.setState({
-                    chatOnChannel: chatOnChannel
+                    chatOnChannel: chatOnChannel,
+                    channels: this.state.channels.concat(result.otherChannelIDs),
                 });
-
-                this.receiveChat(result.channelID);
             },
             (error) => {
                 console.log(error);
@@ -75,7 +81,7 @@ export class ChatClient extends React.Component {
             (result) => {
                 if (result.userID !== this.userId) {
                     const chatOnChannel = JSON.parse(JSON.stringify(this.state.chatOnChannel));
-                    chatOnChannel[result.channelID].messages = chatOnChannel.messages.concat({ message: result.message, type: 'received'});
+                    chatOnChannel[channelID].messages = chatOnChannel[channelID].messages.concat({ message: result.message, type: 'received'});
 
                     this.setState({
                         messages: this.state.messages.concat({ message: result.message, type: 'received'}),
@@ -83,7 +89,7 @@ export class ChatClient extends React.Component {
                     });
                 }
 
-                this.receiveChat();
+                this.receiveChat(channelID);
             },
             // Note: it's important to handle errors here
             // instead of a catch() block so that we don't swallow
@@ -101,9 +107,13 @@ export class ChatClient extends React.Component {
         this.createChat();
     }
 
-    updateMessageToSend(evt) {
+    updateMessageToSend(evt, channelID) {
+        console.log(channelID);
+        const chat = JSON.parse(JSON.stringify(this.state.chatOnChannel));
+        chat[channelID].messageToSend = evt.target.value;
+
         this.setState({
-            messageToSent: evt.target.value
+            messageToSend: evt.target.value
         });
     }
 }

@@ -22,3 +22,25 @@
     color: blue;
     text-align: left;
 }
+
+.chat-messages {
+    overflow: auto;
+}
+
+.channels {
+    width: 300px;
+    padding: 0;
+    margin: 0;
+    display: inline-block;
+    vertical-align: top;
+    padding-top: 50px;
+}
+
+.channels li {
+    list-style-type: none;
+}
+
+.chat-area {
+    width: 350px;
+    display: inline-block;
+}
