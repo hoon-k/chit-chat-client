@@ -4,23 +4,24 @@ export class ChatClient extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            messageToSent: '',
+            messageToSend: '',
             messages: [],
+            chatOnChannel: {}
         };
         this.channelId = '';
         this.userId = (new Date()).getTime();
     }
 
-    sendChat() {
-        if (this.state.messageToSent.trim() === '') {
+    sendChat(channelID) {
+        if (this.state.messageToSend.trim() === '') {
             return;
         }
 
         const msg = {
             userID: this.userId,
-            channelID: this.channelId,
+            channelID: channelID,
             sentTime: Date.UTC(),
-            message: this.state.messageToSent
+            message: this.state.messageToSend
         };
 
         fetch('http://localhost:8085/live-chat/push', {
@@ -44,8 +45,17 @@ export class ChatClient extends React.Component {
         .then(res => res.json())
         .then(
             (result) => {
-                this.channelId = result.channelID;
-                this.receiveChat();
+                // this.channelId = result.channelID;
+                const channelID = result.channelID;
+                let chatOnChannel = JSON.parse(JSON.stringify(this.state.chatOnChannel));
+                chatOnChannel[channelID] = {};
+                chatOnChannel[channelID].messages = [];
+                   
+                this.setState({
+                    chatOnChannel: chatOnChannel
+                });
+
+                this.receiveChat(result.channelID);
             },
             (error) => {
                 console.log(error);
@@ -53,19 +63,23 @@ export class ChatClient extends React.Component {
         );
     }
 
-    receiveChat() {
+    receiveChat(channelID) {
         fetch('http://localhost:8085/live-chat/poll', {
             method: 'GET',
             headers: {
-                'X-Channel-ID': this.channelId
+                'X-Channel-ID': channelID
             }
         })
         .then(res => res.json())
         .then(
             (result) => {
                 if (result.userID !== this.userId) {
+                    const chatOnChannel = JSON.parse(JSON.stringify(this.state.chatOnChannel));
+                    chatOnChannel[result.channelID].messages = chatOnChannel.messages.concat({ message: result.message, type: 'received'});
+
                     this.setState({
-                        messages: this.state.messages.concat({ message: result.message, type: 'received'})
+                        messages: this.state.messages.concat({ message: result.message, type: 'received'}),
+                        chatOnChannel: chatOnChannel
                     });
                 }
 
